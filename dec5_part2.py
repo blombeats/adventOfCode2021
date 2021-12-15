@@ -11,13 +11,9 @@ def loadData(filename):
 
 
 data = loadData('dec5_test.txt')
-data = loadData('dec5_input.txt')
+#data = loadData('dec5_input.txt')
 
 data = np.array([[[int(z) for z in y.split(",")] for y in x.split(" -> ")] for x in data])
-
-
-
-
 
 len(data)
 # x1,y1 x2,y2
@@ -59,29 +55,28 @@ for x in cords:
 
     myMap[y1:y2 + 1, x1:x2 + 1] += 1
 
-#Diagonal
+# Diagonal
 for x in data:
-    x1 = min(x[:,0])
-    y1 = min(x[:,1])
-    x2 = max(x[:,0])
-    y2 = max(x[:,1])
+    x1 = min(x[:, 0])
+    y1 = min(x[:, 1])
+    x2 = max(x[:, 0])
+    y2 = max(x[:, 1])
 
-    #print(x1, y1, x2, y2)
-
-    #is it diagonal
-    xDiff=x2-x1
-    yDiff=y2-y1
+    # is it diagonal
+    xDiff = x2 - x1
+    yDiff = y2 - y1
 
     if xDiff == yDiff:
-        #Its diagonal!
-        #render diagonal
-        for y in range(yDiff+1):
-            myMap[x1+y,y1+y]+=1
-
-
-
-
+        print(f"x:{x1} y:{y1} x:{x2} y:{y2}")
+        # Its diagonal!
+        # render diagonal
+        for y in range(yDiff + 1):
+            myMap[x1 + y, y1 + y] += 1
+            print(f"x:{x1 + y} y:{y1 + y}")
+    print(myMap)
 
 result = (myMap >= 2).sum()
+
+print(myMap)
 
 print(f"Result: {result}")
