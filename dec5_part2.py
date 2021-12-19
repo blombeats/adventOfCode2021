@@ -11,7 +11,7 @@ def loadData(filename):
 
 
 data = loadData('dec5_test.txt')
-#data = loadData('dec5_input.txt')
+data = loadData('dec5_input.txt')
 
 data = np.array([[[int(z) for z in y.split(",")] for y in x.split(" -> ")] for x in data])
 
@@ -33,6 +33,11 @@ print(f"CordsMax: {cordsMax}")
 myMap = np.zeros([cordsMax + 1, cordsMax + 1])
 print(f"mymap shape {myMap.shape}")
 
+# convert to int
+data = data.astype(int)
+
+
+IF Horizon or or VERTIAL OR DIAGONAL
 # draw lines
 for x in cords:
 
@@ -53,30 +58,49 @@ for x in cords:
 
     myMap[y1:y2 + 1, x1:x2 + 1] += 1
 
+x = data[1]
+
 # Diagonal
 for x in data:
-    #Detta är felet! De swappar valörer mellan arrerna.
+    # Detta är felet! De swappar valörer mellan arrerna.
     # TODO
     # lös detta de ska inte kunna flytta 0 till 1 i andra arrayen osv
 
-    x1 = min(x[:, 0])
-    y1 = min(x[:, 1])
-    x2 = max(x[:, 0])
-    y2 = max(x[:, 1])
+    X = x[:, 0]
+    Y = x[:, 1]
 
     # is it diagonal
-    xDiff = x2 - x1
-    yDiff = y2 - y1
+    if X[0] > X[1]:
+        xDiff = X[0] - X[1]
+    elif X[0] < X[1]:
+        xDiff = X[1] - X[0]
+    elif X[0] == X[1]:
+        xDiff = 0
+    else:
+        ValueError(f"X - x: {X} y: {Y}")
 
-    if xDiff == yDiff and x2>x1 and y2 > y1:
-        print(f"x:{x1} y:{y1} x:{x2} y:{y2}")
-        # Its diagonal!
-        # render diagonal
-        for y in range(yDiff + 1):
-            myMap[x1 + y, y1 + y] += 1
-            print(f"x:{x1 + y} y:{y1 + y}")
-    print(myMap)
+    if Y[0] > Y[1]:
+        yDiff = Y[0] - Y[1]
+    elif Y[0] < Y[1]:
+        yDiff = Y[1] - Y[0]
+    elif Y[0] == Y[1]:
+        yDiff = 0
+    else:
+        ValueError(f"Y - x: {X} y: {Y}")
 
+    if xDiff == yDiff:
+        # its diagonal
+
+        xAxis = range(X[0], X[1] + 1, 1) if X.argmin() == 0 else range(X[0], X[1] - 1, -1)
+        yAxis = range(Y[0], Y[1] + 1, 1) if Y.argmin() == 0 else range(Y[0], Y[1] - 1, -1)
+
+        nummer = list(zip(xAxis, yAxis))
+
+        if not len(xAxis) == len(yAxis) == len(nummer):
+            raise ValueError
+
+        for a, b in nummer:
+            myMap[a, b] += 1
 
 result = (myMap >= 2).sum()
 
