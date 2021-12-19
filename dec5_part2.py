@@ -34,8 +34,6 @@ myMap = np.zeros([cordsMax + 1, cordsMax + 1])
 print(f"mymap shape {myMap.shape}")
 
 # draw lines
-
-
 for x in cords:
 
     # The smallest value in the right place
@@ -57,6 +55,10 @@ for x in cords:
 
 # Diagonal
 for x in data:
+    #Detta är felet! De swappar valörer mellan arrerna.
+    # TODO
+    # lös detta de ska inte kunna flytta 0 till 1 i andra arrayen osv
+
     x1 = min(x[:, 0])
     y1 = min(x[:, 1])
     x2 = max(x[:, 0])
@@ -66,7 +68,7 @@ for x in data:
     xDiff = x2 - x1
     yDiff = y2 - y1
 
-    if xDiff == yDiff:
+    if xDiff == yDiff and x2>x1 and y2 > y1:
         print(f"x:{x1} y:{y1} x:{x2} y:{y2}")
         # Its diagonal!
         # render diagonal
@@ -74,6 +76,7 @@ for x in data:
             myMap[x1 + y, y1 + y] += 1
             print(f"x:{x1 + y} y:{y1 + y}")
     print(myMap)
+
 
 result = (myMap >= 2).sum()
 
