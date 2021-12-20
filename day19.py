@@ -11,21 +11,21 @@ def loadData(filename):
 
 
 def splitData(data):
-    stuff = []
+    ranges = []
     for i in range(len(data)):
         if "---" in data[i]:
-            stuff.append({'i': i})
+            ranges.append(i)
 
-    print(stuff)
+    print(ranges)
 
     datasplit = []
 
-    for i in range(len(stuff) - 1):
-        datasplit.append(
-            data[stuff[i]['i']:stuff[i + 1]['i']]
-        )
-
-    print(datasplit[0])
+    for i in range(len(ranges)):
+        if i == len(ranges) - 1:
+            datasplit.append(data[ranges[i]:])
+        else:
+            datasplit.append(data[ranges[i]:ranges[i + 1]])
+    print(datasplit)
 
     # remove empty
 
@@ -38,24 +38,37 @@ def splitData(data):
     return datasplit
 
 
-class beacon:
-    def __init__(self):
-        self.pos = np.array([np.nan] * 3)
-        pass
+class Beacon:
+    def __init__(self, x=None, y=None, z=None):
+        self.posAbs = np.array([np.nan] * 3)
+        if x:
+            self.posRel = np.array([x, y, z], dtype=int)  # relative
+        else:
+            self.posRel = np.array([np.nan] * 3)  # relative
 
 
-class scanner:
-    def __init__(self):
+class Scanner:
+    def __init__(self, data, x=None, y=None, z=None):
         self.detectionRange = 1000  # units in all axis (x,y,z)
         # detection relative to the scanner
         # scanners cannot detect other scanners
 
-        self.pos = np.array([np.nan] * 3)
-        self.rot = np.array([np.nan] * 3)  # 90 degree clicks in all directions. 24 different orientations
+        if x:
+            self.posAbs = np.array([x, y, z], dtype=int)
+        else:
+            self.posAbs = np.array([np.nan] * 3)  # scanner0 is at 0,0,0
+
+        self.rot = np.array([1] * 3)  # 90 degree clicks in all directions. 24 different orientations
+
+        self.view = None  # Vad denna scanner ser
 
         self.detectedBeacons = []
+        self.data = data
 
         # You'll need to determine the positions of the beacons and scanners yourself.
+
+    def print(self):
+        print(self.data)
 
     def dectection(self):
         pass
@@ -75,11 +88,12 @@ class Overlapping:
         self.scanners = scanners
         self.overlappingBeacons = 0
 
-        pass
 
+# data = loadData('dec19_input.txt')
+data = loadData('dec19_test2.txt')
+data = splitData(data)
 
-data = loadData('dec19_test.txt')
-data=splitData(data)
+scanners = [Scanner(x) for x in data]
 
 # The submarine has automatically summarized the relative positions
 # of beacons detected by each scanner (your puzzle input).
