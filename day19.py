@@ -40,18 +40,28 @@ def splitData(data):
 
 class Beacon:
     def __init__(self, x=None, y=None, z=None):
+
         self.posAbs = np.array([np.nan] * 3)
-        if x:
+        if x or y or z:
             self.posRel = np.array([x, y, z], dtype=int)  # relative
         else:
-            self.posRel = np.array([np.nan] * 3)  # relative
+            raise ValueError(f"X:{x}, Y:{y}, Z:{z}")
+            # self.posRel = np.array([np.nan] * 3)  # relative
+
+    def __repr__(self):
+        return f"Beacon | Rel:{self.posRel} Abs:{self.posAbs} "
 
 
 class Scanner:
-    def __init__(self, data, x=None, y=None, z=None):
+    def __repr__(self):
+        return str(self.data)
+
+    def __init__(self, data, id=0, x=None, y=None, z=None):
         self.detectionRange = 1000  # units in all axis (x,y,z)
         # detection relative to the scanner
         # scanners cannot detect other scanners
+
+        self.id = id
 
         if x:
             self.posAbs = np.array([x, y, z], dtype=int)
@@ -59,16 +69,17 @@ class Scanner:
             self.posAbs = np.array([np.nan] * 3)  # scanner0 is at 0,0,0
 
         self.rot = np.array([1] * 3)  # 90 degree clicks in all directions. 24 different orientations
-
         self.view = None  # Vad denna scanner ser
-
-        self.detectedBeacons = []
+        self.beacons = []
         self.data = data
+
+        self.createBeacons()
 
         # You'll need to determine the positions of the beacons and scanners yourself.
 
-    def print(self):
-        print(self.data)
+    def createBeacons(self):
+        for b in self.data:
+            self.beacons.append(Beacon(x=b[0], y=b[1], z=0))
 
     def dectection(self):
         pass
@@ -93,7 +104,10 @@ class Overlapping:
 data = loadData('dec19_test2.txt')
 data = splitData(data)
 
-scanners = [Scanner(x) for x in data]
+# scanners
+s = [Scanner(x,id=i) for i, x in enumerate(data)]
+
+print(s[0].beacons)
 
 # The submarine has automatically summarized the relative positions
 # of beacons detected by each scanner (your puzzle input).
