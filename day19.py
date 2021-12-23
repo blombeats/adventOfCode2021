@@ -38,66 +38,62 @@ def splitData(data):
     return datasplit
 
 
-class Beacon:
-    def __init__(self, x=None, y=None, z=None):
-
-        self.posAbs = np.array([np.nan] * 3)
-        if x or y or z:
-            self.posRel = np.array([x, y, z], dtype=int)  # relative
-        else:
-            raise ValueError(f"X:{x}, Y:{y}, Z:{z}")
-            # self.posRel = np.array([np.nan] * 3)  # relative
-
-    def __repr__(self):
-        return f"Beacon | Rel:{self.posRel} Abs:{self.posAbs} "
-
-
 class Scanner:
+    """
+    Data contains the beacons
+
+
+    """
+
     def __repr__(self):
         return str(self.data)
 
     def __init__(self, data, id=0, x=None, y=None, z=None):
+
         self.detectionRange = 1000  # units in all axis (x,y,z)
         # detection relative to the scanner
         # scanners cannot detect other scanners
 
         self.id = id
 
-        if x:
+        if id == 0:
+            self.posAbs = np.array([0, 0, 0], dtype=int)
+        elif x:
             self.posAbs = np.array([x, y, z], dtype=int)
         else:
             self.posAbs = np.array([np.nan] * 3)  # scanner0 is at 0,0,0
 
+        self.offsetX = 0
+        self.offsetY = 0
+
         self.rot = np.array([1] * 3)  # 90 degree clicks in all directions. 24 different orientations
         self.view = None  # Vad denna scanner ser
-        self.beacons = []
-        self.data = data
+        self.data = data  # relative position
+        self.dataAbs = np.zeros_like(data)  # absolute position
 
-        self.createBeacons()
+        self._createView()
 
-        # You'll need to determine the positions of the beacons and scanners yourself.
+        self.render()
 
-    def createBeacons(self):
-        for b in self.data:
-            self.beacons.append(Beacon(x=b[0], y=b[1], z=0))
-
-    def dectection(self):
-        pass
-        # For example,
-        # if a scanner is at x, y, z coordinates 500, 0, -500
-        # and there are beacons at -500, 1000, -1500 and 1501, 0, -500,
-        # the scanner could report that the first beacon is at -1000, 1000, -1000
-        # (relative to the scanner) but would not detect the second beacon at all.
-
-    def overlappingRegion(self, otherScanner):
-        # at least 12 beacons
+    def detectPattern(self):
         pass
 
+    def _createView(self):
+        # 0,0 is bottom left
+        maxX = np.max(self.data[:, 0]) + 1
+        maxY = np.max(self.data[:, 1]) + 1
 
-class Overlapping:
-    def __init__(self, scanners: list):
-        self.scanners = scanners
-        self.overlappingBeacons = 0
+        self.view = np.zeros([maxY, maxX], dtype=int)
+
+    def render(self):
+        for x, y in self.data:
+            self.view[-abs(y) - 1, x] = 1
+
+        print(self.view)
+
+    def resetView(self):
+        # reset
+        self.view[:, :] = 0
 
 
 # data = loadData('dec19_input.txt')
@@ -105,9 +101,11 @@ data = loadData('dec19_test2.txt')
 data = splitData(data)
 
 # scanners
-s = [Scanner(x,id=i) for i, x in enumerate(data)]
+s = [Scanner(x, id=i) for i, x in enumerate(data)]
 
-print(s[0].beacons)
+self = s[1]
+
+# print(s[0].beacons)
 
 # The submarine has automatically summarized the relative positions
 # of beacons detected by each scanner (your puzzle input).
